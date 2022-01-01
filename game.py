@@ -5,6 +5,35 @@ import sys
 import random
 
 
+def change():
+    f1 = open('data/map.txt', mode='w', encoding='utf-8')
+    flag = False
+    number_player = random.randint(1, 14)
+    number_player_more = random.randint(1, 20)
+    count = 0
+    count_more = 0
+    for i in range(14):
+        a = ''
+        if count != number_player:
+            for j in range(20):
+                g = random.choice(['#', '.'])
+                a += g
+        else:
+            for j in range(20):
+                if number_player_more == count_more:
+                    g = '@'
+                    a += g
+                else:
+                    g = random.choice(['#', '.'])
+                    a += g
+                count_more += 1
+        count += 1
+        f1.write(a + '\n')
+
+
+change()
+
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -94,7 +123,9 @@ class Monsters(pygame.sprite.Sprite):
         self.health = 3
         self.index_animation = 1
         self.flag = False
-        self.anim_right = [pygame.transform.scale(pygame.image.load(f'data/zombie_dead{i}.png'), (size_monster, size_monster)) for i in range(1, 5)]
+        self.anim_right = [
+            pygame.transform.scale(pygame.image.load(f'data/zombie_dead{i}.png'), (size_monster, size_monster)) for i in
+            range(1, 5)]
 
     def update(self):
         if self.flag == True:
@@ -126,8 +157,8 @@ class Player(pygame.sprite.Sprite):
                            range(1, 5)]
         self.image = pygame.transform.scale(pygame.image.load(f'data/r1.png'), (SIZE, SIZE))
         self.rect = self.image.get_rect()
-        self.rect.x = x * 50
-        self.rect.y = y * 50
+        self.rect.x = x * 49
+        self.rect.y = y * 49
         self.dx = 0
         self.dy = 0
         self.speed_x = 0.1
@@ -198,27 +229,12 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-def change():
-    s = open('map.txt', mode='w', encoding='utf-8')
-    for i in range(14):
-        flag = False
-        a = ''
-        for j in range(20):
-            g = random.choice(['#', '.', '@'])
-            if flag and g == '@':
-                g = random.choice(['#', '.'])
-            if g == '@':
-                flag = True
-            a += g
-        s.write(a + '\n')
-
-
 if __name__ == '__main__':
     pygame.init()
     size = width, height = 1000, 700
     screen = pygame.display.set_mode(size)
     running = True
-    change()
+
     screen.fill((93, 62, 29))
     pygame.display.flip()
     fps = 120
