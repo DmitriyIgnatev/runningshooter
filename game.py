@@ -10,7 +10,10 @@ def change():
     flag = False
     number_player = random.randint(1, 14)
     number_player_more = random.randint(1, 20)
+    zombies = random.randint(2, 7)
+    zombies_coords = [(random.randint(1, 14), random.randint(1, 20)) for i in range(zombies)]
     count = 0
+    maps = []
     count_more = 0
     for i in range(14):
         a = ''
@@ -28,7 +31,19 @@ def change():
                     a += g
                 count_more += 1
         count += 1
-        f1.write(a + '\n')
+        maps.append(a + '\n')
+    for i in zombies_coords:
+        try:
+            a = list(maps[i[0]])
+            if a[i[1]] == '@':
+                continue
+            else:
+                a[i[1]] = 'z'
+                maps[i[0]] = a
+        except:
+            continue
+    for i in maps:
+        f1.write(''.join(i))
 
 
 change()
