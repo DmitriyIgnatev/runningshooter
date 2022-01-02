@@ -46,7 +46,7 @@ def change():
         f1.write(''.join(i))
 
 
-change()
+# change()
 
 
 def load_image(name, colorkey=None):
@@ -74,10 +74,17 @@ def generate_level(level):
             elif level[y][x] == 'z':
                 Tile('grow', x, y, 1)
                 mon.add(Monsters(y, x))
-    return player, x, y
+            elif level[y][x] == 'h':
+                ho = Block('house', x, y)
+                block_group.add(ho)
+            elif level[y][x] == 'c':
+                Tile('grow', x, y, 1)
+                ho = Block('cfhfq', x, y)
+                block_group.add(ho)
+    return player, x, y, ho
 
 
-tile_images = {'grow': [load_image('brick1.jpg'), load_image('brick2.jpg')]}
+tile_images = {'grow': [load_image('brick1.jpg'), load_image('brick2.jpg')], 'house': load_image('house.png'), 'cfhfq': load_image('cfhfq.png')}
 
 all_sprites = pygame.sprite.Group()
 SIZE = 100
@@ -86,6 +93,34 @@ tile_width = tile_height = 50
 tiles_group = pygame.sprite.Group()
 bullet = pygame.sprite.Group()
 mon = pygame.sprite.Group()
+block_group = pygame.sprite.Group()
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self, name, y, x):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.scale(tile_images[name], (200, 200))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = x * 55
+        self.rect.y = y * 30
+
+
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
 
 
 class Tile(pygame.sprite.Sprite):
@@ -249,16 +284,22 @@ if __name__ == '__main__':
     size = width, height = 1000, 700
     screen = pygame.display.set_mode(size)
     running = True
-
+    camera = Camera()
     screen.fill((93, 62, 29))
     pygame.display.flip()
     fps = 120
     clock = pygame.time.Clock()
-    player, level_x, level_y = generate_level(load_level('map.txt'))
+    player, level_x, level_y, house = generate_level(load_level('map.txt'))
     tiles_group.draw(screen)
+    space_group = pygame.sprite.Group()
+    a = pygame.sprite.Sprite()
+    a.image = load_image('space.jpg')
+    a.rect = a.image.get_rect()
+    space_group.add(a)
+    space_group.draw(screen)
 
     while running:
-        screen.fill('white')
+        space_group.draw(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -285,7 +326,18 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         mon.draw(screen)
         bullet.draw(screen)
-
+        block_group.draw(screen)
+        camera.update(player)
+        for sprite in all_sprites:
+            camera.apply(sprite)
+        for sprite in tiles_group:
+            camera.apply(sprite)
+        for sprite in block_group:
+            camera.apply(sprite)
+        for sprite in bullet:
+            camera.apply(sprite)
+        for sprite in mon:
+            camera.apply(sprite)
         pygame.display.flip()
         player.update()
         clock.tick(fps)
