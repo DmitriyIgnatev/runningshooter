@@ -12,6 +12,7 @@ def change():
     number_player_more = random.randint(1, 20)
     zombies = random.randint(2, 7)
     zombies_coords = [(random.randint(1, 14), random.randint(1, 20)) for i in range(zombies)]
+    houses = [(random.randint(1, 14), random.randint(1, 20)) for i in range(2)]
     count = 0
     maps = []
     count_more = 0
@@ -42,11 +43,21 @@ def change():
                 maps[i[0]] = a
         except:
             continue
+    for i in houses:
+        try:
+            a = list(maps[i[0]])
+            if a[i[1]] == '@':
+                continue
+            else:
+                a[i[1]] = random.choice(['h', 'c'])
+                maps[i[0]] = a
+        except:
+            continue
     for i in maps:
         f1.write(''.join(i))
 
 
-# change()
+change()
 
 
 def load_image(name, colorkey=None):
@@ -75,11 +86,12 @@ def generate_level(level):
                 Tile('grow', x, y, 1)
                 mon.add(Monsters(y, x))
             elif level[y][x] == 'h':
-                ho = Block('house', x, y)
+                Tile('grow', x, y, 1)
+                ho = Block('house', x, y, 200)
                 block_group.add(ho)
             elif level[y][x] == 'c':
                 Tile('grow', x, y, 1)
-                ho = Block('cfhfq', x, y)
+                ho = Block('cfhfq', x, y, 300)
                 block_group.add(ho)
     return player, x, y, ho
 
@@ -97,9 +109,9 @@ block_group = pygame.sprite.Group()
 
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, name, y, x):
+    def __init__(self, name, y, x, size):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(tile_images[name], (200, 200))
+        self.image = pygame.transform.scale(tile_images[name], (size, size))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = x * 55
@@ -170,6 +182,7 @@ class Monsters(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * 50
         self.rect.y = y * 50
+        self.mask = pygame.mask.from_surface(self.image)
         self.health = 3
         self.index_animation = 1
         self.flag = False
