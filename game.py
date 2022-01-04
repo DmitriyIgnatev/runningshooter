@@ -8,11 +8,12 @@ import random
 def change():
     f1 = open('data/map.txt', mode='w', encoding='utf-8')
     flag = False
-    number_player = random.randint(1, 14)
-    number_player_more = random.randint(1, 20)
-    zombies = random.randint(2, 7)
-    zombies_coords = [(random.randint(1, 14), random.randint(1, 20)) for i in range(zombies)]
-    houses = [(random.randint(1, 14), random.randint(1, 20)) for i in range(2)]
+    number_player = random.randint(5, 14)
+    number_player_more = random.randint(5, 20)
+    zombies = random.randint(4, 10)
+    zombies_coords = [(random.randint(5, 14), random.randint(5, 20)) for i in range(zombies)]
+    houses = [(random.randint(3, 11), random.randint(5, 15)) for i in range(1)]
+    stones = [(random.randint(5, 14), random.randint(5, 20)) for i in range(random.randint(3, 6))]
     count = 0
     maps = []
     count_more = 0
@@ -43,6 +44,7 @@ def change():
                 maps[i[0]] = a
         except:
             continue
+    hos = []
     for i in houses:
         try:
             a = list(maps[i[0]])
@@ -50,6 +52,17 @@ def change():
                 continue
             else:
                 a[i[1]] = random.choice(['h', 'c'])
+                maps[i[0]] = a
+                hos.append(a)
+        except:
+            continue
+    for i in stones:
+        try:
+            a = list(maps[i[0]])
+            if a[i[1]] == '@':
+                continue
+            if a[i[1]] != '@' and a[i[1]] != 'h' and a[i[1]] != 'c' and a[i[1]] != 'z':
+                a[i[1]] = 's'
                 maps[i[0]] = a
         except:
             continue
@@ -93,10 +106,14 @@ def generate_level(level):
                 Tile('grow', x, y, 1)
                 ho = Block('cfhfq', x, y, 300)
                 block_group.add(ho)
-    return player, x, y, ho
+            elif level[y][x] == 's':
+                Tile('grow', x, y, 1)
+                st = Block('stone_figure', x, y, 100)
+                block_group.add(st)
+    return player, x, y
 
-
-tile_images = {'grow': [load_image('brick1.jpg'), load_image('brick2.jpg')], 'house': load_image('house.png'), 'cfhfq': load_image('cfhfq.png')}
+tile_images = {'grow': [load_image('brick1.jpg'), load_image('brick2.jpg')], 'house': load_image('house.png'),
+               'cfhfq': load_image('cfhfq.png'), 'stone_figure': load_image('stone_figure.png')}
 
 all_sprites = pygame.sprite.Group()
 SIZE = 100
@@ -109,13 +126,13 @@ block_group = pygame.sprite.Group()
 
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, name, y, x, size):
+    def __init__(self, name, x, y, size):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.transform.scale(tile_images[name], (size, size))
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect.x = x * 55
-        self.rect.y = y * 30
+        self.rect.x = x * 45
+        self.rect.y = y * 45
 
 
 class Camera:
@@ -190,6 +207,12 @@ class Monsters(pygame.sprite.Sprite):
             pygame.transform.scale(pygame.image.load(f'data/zombie_dead{i}.png'), (size_monster, size_monster)) for i in
             range(1, 5)]
 
+    def plus(self):
+        s = int(open('data/result.txt', mode='r', encoding='utf-8').readlines()[0].replace('\n', ''))
+        s += 100
+        wr = open('data/result.txt', mode='w', encoding='utf-8')
+        wr.write(str(s))
+
     def update(self):
         if self.flag == True:
             self.kill()
@@ -197,9 +220,11 @@ class Monsters(pygame.sprite.Sprite):
             if pygame.sprite.spritecollideany(self, bullet):
                 self.health -= 1
                 if self.health == 0:
+                    self.plus()
                     self.flag = True
                     bul.kill()
                 else:
+                    self.plus()
                     bul.kill()
 
     def kill(self):
@@ -302,7 +327,7 @@ if __name__ == '__main__':
     pygame.display.flip()
     fps = 120
     clock = pygame.time.Clock()
-    player, level_x, level_y, house = generate_level(load_level('map.txt'))
+    player, level_x, level_y = generate_level(load_level('map.txt'))
     tiles_group.draw(screen)
     space_group = pygame.sprite.Group()
     a = pygame.sprite.Sprite()
