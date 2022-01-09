@@ -53,8 +53,9 @@ def change():
                 maps[i[0]] = a
         except:
             continue
-    maps += '###\n'
-    maps += '@##\n'
+    maps += '$$$\n'
+    maps += '$@$\n'
+    maps += '$$$\n'
     for i in maps:
         f1.write(''.join(i))
 
@@ -81,7 +82,7 @@ def generate_level(level):
             elif level[y][x] == '.':
                 Tile('grow', x, y, 1)
             elif level[y][x] == '@':
-                Tile('grow', x, y, 0)
+                Tile('st', x, y, random.randint(0, 1))
                 player = Player(y, x)
                 all_sprites.add(player)
             elif level[y][x] == 'z':
@@ -99,10 +100,12 @@ def generate_level(level):
                 Tile('grow', x, y, 1)
                 st = Ston('stone_figure', x, y, 100)
                 block_group.add(st)
+            elif level[y][x] == '$':
+                Tile('st', x, y, random.randint(0, 1))
     return player, x, y
 
 tile_images = {'grow': [load_image('brick1.jpg'), load_image('brick2.jpg')], 'house': load_image('house.png'),
-               'cfhfq': load_image('cfhfq.png'), 'stone_figure': load_image('stone_figure.png')}
+               'cfhfq': load_image('cfhfq.png'), 'stone_figure': load_image('stone_figure.png'), 'st':[load_image('stone1.jpg'), load_image('stone2.jpg')]}
 
 all_sprites = pygame.sprite.Group()
 SIZE = 100
