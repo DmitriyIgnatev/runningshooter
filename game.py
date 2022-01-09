@@ -108,7 +108,7 @@ def generate_level(level):
                 block_group.add(ho)
             elif level[y][x] == 's':
                 Tile('grow', x, y, 1)
-                st = Block('stone_figure', x, y, 100)
+                st = Ston('stone_figure', x, y, 100)
                 block_group.add(st)
     return player, x, y
 
@@ -123,6 +123,15 @@ tiles_group = pygame.sprite.Group()
 bullet = pygame.sprite.Group()
 mon = pygame.sprite.Group()
 block_group = pygame.sprite.Group()
+health = pygame.sprite.Group()
+stones = pygame.sprite.Group()
+health1 = pygame.sprite.Sprite()
+health1.image = load_image('he')
+health2 = pygame.sprite.Sprite()
+health3 = pygame.sprite.Sprite()
+health.add(health1)
+health.add(health2)
+health.add(health3)
 
 
 class Block(pygame.sprite.Sprite):
@@ -134,6 +143,19 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = x * 45
         self.rect.y = y * 45
 
+
+class Ston(pygame.sprite.Sprite):
+    def __init__(self, name, x, y, size):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.scale(tile_images[name], (size, size))
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x = x * 45
+        self.rect.y = y * 45
+
+    def update(self):
+        if pygame.sprite.spritecollideany(self, block_group):
+            self.kill()
 
 class Camera:
     # зададим начальный сдвиг камеры
@@ -364,6 +386,7 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         mon.draw(screen)
         bullet.draw(screen)
+        stones.draw(screen)
         block_group.draw(screen)
         camera.update(player)
         for sprite in all_sprites:
