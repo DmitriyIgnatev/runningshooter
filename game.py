@@ -7,14 +7,11 @@ import random
 
 def change():
     f1 = open('data/map.txt', mode='w', encoding='utf-8')
-    flag = False
     zombies = random.randint(4, 10)
     zombies_coords = [(random.randint(5, 14), random.randint(5, 20)) for i in range(zombies)]
     houses = [(random.randint(3, 11), random.randint(5, 15)) for i in range(1)]
     stones = [(random.randint(5, 14), random.randint(5, 20)) for i in range(random.randint(3, 6))]
-    count = 0
     maps = []
-    count_more = 0
     for i in range(14):
         a = ''
         for j in range(20):
